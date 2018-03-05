@@ -25,8 +25,7 @@
   int col;
   int ele;
 } task_t;
-pthread_cond_t empty, fill;
-pthread_mutex_t  mutex;
+
 void sleepms(int milliseconds);
 void put(char* command);
 char get();

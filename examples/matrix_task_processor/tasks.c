@@ -83,7 +83,7 @@ typedef struct __task_t {
 // Implement sleep in ms 
 void sleepms(int milliseconds) 
 {
-	if(!milliseconds){
+	if(milliseconds == 0){
 		usleep(500 * 1000);
 	}else{
 		usleep(milliseconds * 1000);
@@ -94,18 +94,17 @@ void sleepms(int milliseconds)
 //TO DO "Not DONE"
 // Implement Bounded Buffer put() here
 void put(char* command) {
-	tasks[fill_ptr] = (char*) malloc(sizeof(*command));
-	memset(tasks[fill_ptr], 0, sizeof(*command));
+	memset(tasks[fill_ptr], 0, BUFFSIZ);
 	sprintf(tasks[fill_ptr], "%s",command);
-	// printf("1.**** %s, 2.**** %d, 3.**** %d\n",tasks[fill_ptr], fill_ptr, count);
+	// printf("put 1.**** %s, 2.**** %d, 3.**** %d\n",tasks[fill_ptr], fill_ptr, count);
 	fill_ptr = (fill_ptr + 1) % MAX;
 	count++;
 	}
 // Implement Bounded Buffer get() here
-char get() {
-	char tmp = tasks[use_ptr];
-	printf("1.**** %s, 2.**** %d, 3.**** %d\n",tasks[use_ptr], use_ptr, count);
-	free(tasks[use_ptr]);
+char* get() {
+	char* tmp = tasks[use_ptr];
+	printf("get 1.************ %s, 2.**** %d, 3.**** %d\n",tasks[use_ptr], use_ptr, count);
+	// free(tasks[use_ptr]);
 	use_ptr = (use_ptr + 1) % MAX;
 	count--;
 	return tmp;
@@ -131,8 +130,14 @@ void *readtasks(void *arg)
     if (!(getcwd(cwd, sizeof(cwd)) != NULL))
       fprintf(stderr, "getcwd error\n");
 
+  
+	//TO DO
+	for(int i = 0; i < MAX; i++){
+		tasks[i] = (char*) malloc(BUFFSIZ);
+	}
+	
     printf("Processing tasks in dir='%s'\n",in_dir);
-
+	
     /* Scanning the in directory */
     if (NULL == (FD = opendir (in_dir))) 
     {
@@ -285,7 +290,9 @@ void *dotasks(void * arg)
 	while (count == 0){
 		pthread_cond_wait(&fill, &mutex);
 	}
+	printf("***************BEFORE TASK\n");
     char * task = get();
+	printf("***************DO TASK: '%s'\n",task);
 	pthread_cond_signal(&empty);
 	pthread_mutex_unlock(&mutex);
     // // create matrix command example
