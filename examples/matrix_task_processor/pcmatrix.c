@@ -29,16 +29,27 @@
 
 int main (int argc, char * argv[])
 {
-  // Uncomment to see example operation of the readtasks() routine
-  readtasks((void *)100);  
+	// Uncomment to see example operation of the readtasks() routine
+	// readtasks((void *)100);  
 
-  // Uncomment to see example operation of the dotasks() routine
-  dotasks((void *) NULL);
+	// Uncomment to see example operation of the dotasks() routine
+	// dotasks((void *) NULL);
 
-  // To do
-  // Use pthreads
-  // Create one pthread for readtasks()
-  //
-  // Create one or more pthreads for dotasks()
-  return 0;
+	// To do
+	// Use pthreads
+	// Create one pthread for readtasks()
+	//
+	// Create one or more pthreads for dotasks()
+	
+	pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&empty, NULL);
+    pthread_cond_init(&fill, NULL);
+	pthread_t thid1;
+	pthread_t thid2;
+	// int  ret1;
+	// int  ret2;
+	pthread_create(&thid1, NULL, readtasks((void *)100), NULL);
+	pthread_create(&thid2, NULL, dotasks((void *) NULL), NULL);
+	// pthread_join(thid1, (void**)&ret1);
+	// pthread_join(thid2, (void**)&ret2);
 }

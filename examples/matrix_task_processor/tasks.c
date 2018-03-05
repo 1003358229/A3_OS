@@ -52,6 +52,8 @@ char * tasks[MAX];
 int fill_ptr = 0;
 int use_ptr = 0;
 int count = 0;
+pthread_cond_t empty, fill;
+pthread_mutex_t  mutex;
 
 // task data structure
 // used to capture command information
@@ -81,24 +83,29 @@ typedef struct __task_t {
 // Implement sleep in ms 
 void sleepms(int milliseconds) 
 {
-	if(milliseconds != NULL){
-		usleep(milliseconds * 1000);
-	}else{
+	if(!milliseconds){
 		usleep(500 * 1000);
+	}else{
+		usleep(milliseconds * 1000);
 	}
 	
 }
 
-//TO DO "DONE?"
+//TO DO "Not DONE"
 // Implement Bounded Buffer put() here
-void put(char command) {
-	tasks[fill_ptr] = command;
+void put(char* command) {
+	tasks[fill_ptr] = (char*) malloc(sizeof(*command));
+	memset(tasks[fill_ptr], 0, sizeof(*command));
+	sprintf(tasks[fill_ptr], "%s",command);
+	// printf("1.**** %s, 2.**** %d, 3.**** %d\n",tasks[fill_ptr], fill_ptr, count);
 	fill_ptr = (fill_ptr + 1) % MAX;
 	count++;
 	}
 // Implement Bounded Buffer get() here
 char get() {
 	char tmp = tasks[use_ptr];
+	printf("1.**** %s, 2.**** %d, 3.**** %d\n",tasks[use_ptr], use_ptr, count);
+	free(tasks[use_ptr]);
 	use_ptr = (use_ptr + 1) % MAX;
 	count--;
 	return tmp;
@@ -113,7 +120,7 @@ void *readtasks(void *arg)
     // The sleep duration in ms should be passed in using pthread_create
     // lecture slides from class provide example code
     //
-    int sleep_ms = (int) arg;
+    int sleep_ms = (intptr_t) arg;
     char in_dir[BUFFSIZ] = "tasks_input";
     DIR* FD = NULL;
     struct dirent* in_file = NULL;
@@ -192,13 +199,18 @@ void *readtasks(void *arg)
 #endif
 
               //
-              // TO DO
+              // TO DO "DONE?"
               //
               // THE NEW COMMAND WILL BE IN "buffer"
-              printf("Read the command='%s'\n",buffer);
-              
+              // printf("Read the command='%s'\n",buffer);
               // First make a copy of the string in the buffer
-			  char * tasks[MAX];
+			  pthread_mutex_lock(&mutex);
+			  while (count == MAX){
+				pthread_cond_wait(&empty, &mutex);
+			  }
+			  put(buffer);
+			  pthread_cond_signal(&fill);
+			  pthread_mutex_unlock(&mutex);
               // Add this copy to the bounded buffer for processing by consumer threads...
               // Use of locks and condition variables and call to put() routine...
           }
@@ -253,11 +265,11 @@ task_t *processTask(char * task)
 void *dotasks(void * arg)
 {
   char out_dir[BUFFSIZ] = "tasks_output";
-  char static_task[BUFFSIZ] = "";
+  // char static_task[BUFFSIZ] = "";
   FILE *matrix_file;
   int ** matrix;
   //TO DO "DONE?"
-  int sleep_ms = (int) arg;
+  int sleep_ms = (intptr_t) arg;
   //TO DO
   // Implement the consumer thread code
   // The consumer should run forever - constantly performing tasks from the bounded buffer
@@ -268,10 +280,16 @@ void *dotasks(void * arg)
     // TO DO
     //
     // Read command to perform from the bounded buffer HERE
-    char * task = (char *) &static_task;
-    // create matrix command example
-    sprintf(task, "c a1 20 20 100");
-
+    // char * task = (char *) &static_task;
+	pthread_mutex_lock(&mutex);
+	while (count == 0){
+		pthread_cond_wait(&fill, &mutex);
+	}
+    char * task = get();
+	pthread_cond_signal(&empty);
+	pthread_mutex_unlock(&mutex);
+    // // create matrix command example
+    // sprintf(task, "c a1 20 20 100");
 	//TO DO
     // display matrix command example
     //sprintf(task, "d a2 10 10 100");

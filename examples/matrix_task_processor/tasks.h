@@ -18,14 +18,19 @@
  *  TCSS 422 - Operating Systems
  *  Spring 2017
  */
-
-void *readtasks(void *arg);
-void *dotasks(void *arg);
-
-typedef struct __task_t {
+ typedef struct __task_t {
   char * name;
   char * cmd;
   int row;
   int col;
   int ele;
 } task_t;
+pthread_cond_t empty, fill;
+pthread_mutex_t  mutex;
+void sleepms(int milliseconds);
+void put(char* command);
+char get();
+void *readtasks(void *arg);
+void *dotasks(void *arg);
+int strtokgetint();
+task_t *processTask(char * task);
