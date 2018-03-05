@@ -46,13 +46,18 @@ int main (int argc, char * argv[])
     // pthread_cond_init(&fill, NULL);
 	pthread_t thid1;
 	pthread_t thid2;
+	pthread_t thid3;
 	int  ret1;
 	int  ret2;
+	int  ret3;
 	printf("\n\n\n\n0.0\n\n\n\n");
 	int i = pthread_create(&thid1, NULL, readtasks, (void *)100);
 	printf("\n\n\n\n1. %d\n\n\n\n",i);
 	int j = pthread_create(&thid2, NULL, dotasks, NULL);
 	printf("\n\n\n\n2. %d\n\n\n\n",j);
+	int k = pthread_create(&thid3, NULL, dotasks, NULL);
+	printf("\n\n\n\n3. %d\n\n\n\n",k);
 	pthread_join(thid1, (void**)&ret1);
 	pthread_join(thid2, (void**)&ret2);
+	pthread_join(thid3, (void**)&ret3);
 }
