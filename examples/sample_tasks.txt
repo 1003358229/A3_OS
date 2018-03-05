@@ -1,0 +1,12 @@
+c matrix1 700 700 1
+c matrix2 700 700 2
+c matrix3 700 700 9
+s matrix4 200 200 1
+a matrix5 200 200 1
+d matrix6 10 10 1
+d matrix7 10 10 2
+d matrix8 10 10 9
+r matrix1 700 700 1
+r matrix2 700 700 2
+r matrix3 700 700 9
+x
