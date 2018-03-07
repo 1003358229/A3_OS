@@ -43,6 +43,7 @@
 // MAX should defined the size of the bounded buffer 
 #define MAX 200
 #define OUTPUT 1
+#define Milli_to_Micro 1000
 
 // Define bounded buffer here - use static size of MAX
 char * tasks[MAX];
@@ -84,29 +85,28 @@ typedef struct __task_t {
 void sleepms(int milliseconds) 
 {
 	if(milliseconds == 0){
-		usleep(500 * 1000);
+		usleep(500 * Milli_to_Micro);
 	}else{
-		usleep(milliseconds * 1000);
+		usleep(milliseconds * Milli_to_Micro);
 	}
 	
 }
 
-//TO DO "Not DONE"
+//TO DO "Done?"
 // Implement Bounded Buffer put() here
 void put(char* command) {
 	memset(tasks[fill_ptr], 0, BUFFSIZ);
 	sprintf(tasks[fill_ptr], "%s",command);
-	// printf("put 1.**** %s, 2.**** %d, 3.**** %d\n",tasks[fill_ptr], fill_ptr, count);
-	fill_ptr = (fill_ptr + 1) % MAX;
 	count++;
+	// printf("put 1.************ %s, 2.**** %d, 3.**** %d\n",tasks[fill_ptr], fill_ptr, count);
+	fill_ptr = (fill_ptr + 1) % MAX;
 	}
 // Implement Bounded Buffer get() here
 char* get() {
 	char* tmp = tasks[use_ptr];
-	printf("get 1.************ %s, 2.**** %d, 3.**** %d\n",tasks[use_ptr], use_ptr, count);
-	// free(tasks[use_ptr]);
-	use_ptr = (use_ptr + 1) % MAX;
 	count--;
+	// printf("get 1.************ %s, 2.**** %d, 3.**** %d\n",tasks[use_ptr], use_ptr, count);
+	use_ptr = (use_ptr + 1) % MAX;
 	return tmp;
 }
 
@@ -115,7 +115,7 @@ char* get() {
 // bounded buffer...
 void *readtasks(void *arg)
 {
-    // TO DO
+    // TO DO "Done?"
     // The sleep duration in ms should be passed in using pthread_create
     // lecture slides from class provide example code
     //
@@ -131,7 +131,8 @@ void *readtasks(void *arg)
       fprintf(stderr, "getcwd error\n");
 
   
-	//TO DO
+	//TO DO "Done?"
+	//allocate memory for buffer with max size of each command
 	for(int i = 0; i < MAX; i++){
 		tasks[i] = (char*) malloc(BUFFSIZ);
 	}
@@ -209,6 +210,8 @@ void *readtasks(void *arg)
               // THE NEW COMMAND WILL BE IN "buffer"
               // printf("Read the command='%s'\n",buffer);
               // First make a copy of the string in the buffer
+              // Add this copy to the bounded buffer for processing by consumer threads...
+              // Use of locks and condition variables and call to put() routine...
 			  pthread_mutex_lock(&mutex);
 			  while (count == MAX){
 				pthread_cond_wait(&empty, &mutex);
@@ -216,8 +219,6 @@ void *readtasks(void *arg)
 			  put(buffer);
 			  pthread_cond_signal(&fill);
 			  pthread_mutex_unlock(&mutex);
-              // Add this copy to the bounded buffer for processing by consumer threads...
-              // Use of locks and condition variables and call to put() routine...
           }
 
           /* When you finish with the file, close it */
@@ -275,14 +276,14 @@ void *dotasks(void * arg)
   int ** matrix;
   //TO DO "DONE?"
   int sleep_ms = (intptr_t) arg;
-  //TO DO
+  //TO DO "DONE?"
   // Implement the consumer thread code
   // The consumer should run forever - constantly performing tasks from the bounded buffer
   // The consumer should cause the program to exit when the 'x' command is received
   while (1)
   {
     //
-    // TO DO
+    // TO DO "DONE?"
     //
     // Read command to perform from the bounded buffer HERE
     // char * task = (char *) &static_task;
@@ -290,24 +291,11 @@ void *dotasks(void * arg)
 	while (count == 0){
 		pthread_cond_wait(&fill, &mutex);
 	}
-	printf("***************BEFORE TASK\n");
+	// printf("***************BEFORE TASK\n");
     char * task = get();
-	printf("***************DO TASK: '%s'\n",task);
+	// printf("***************DO TASK: '%s'\n",task);
 	pthread_cond_signal(&empty);
 	pthread_mutex_unlock(&mutex);
-    // // create matrix command example
-    // sprintf(task, "c a1 20 20 100");
-	//TO DO
-    // display matrix command example
-    //sprintf(task, "d a2 10 10 100");
-    // sum matrix command example
-    //sprintf(task, "s a3 5 5 1");
-    // avg matrix command example
-    //sprintf(task, "a a4 5 5 1");
-    // remove matrix command example
-    //sprintf(task, "r a1 20 20 100");
-    // exit command example
-    //sprintf(task, "x");
 
     // TO DO "DONE?"
     // Remove this sleep command - it is here for demonstration purposes only
@@ -368,7 +356,7 @@ void *dotasks(void * arg)
         char tmpfilename[FULLFILENAME];
         sprintf(tmpfilename,"%s/%s/%s.avg",cwd,out_dir,newtask->name);
         matrix_file = fopen(tmpfilename, "w");
-        fprintf(matrix_file,"avg element=%d\n",AvgElement(matrix,newtask->row,newtask->col)); 
+        fprintf(matrix_file,"avg element=%f\n",AvgElement(matrix,newtask->row,newtask->col)); 
         fclose(matrix_file);
         FreeMatrix(matrix,newtask->row,newtask->col);
         break;

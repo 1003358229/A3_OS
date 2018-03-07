@@ -35,21 +35,13 @@ int main (int argc, char * argv[])
 	// Uncomment to see example operation of the dotasks() routine
 	// dotasks((void *) NULL);
 
-	// To do
+	// To do "Done?"
 	// Use pthreads
 	// Create one pthread for readtasks()
 	//
 	// Create one or more pthreads for dotasks()
-	
-	// pthread_mutex_init(&mutex, NULL);
-    // pthread_cond_init(&empty, NULL);
-    // pthread_cond_init(&fill, NULL);
-	pthread_t thid1;
-	pthread_t thid2;
-	pthread_t thid3;
-	int  ret1;
-	int  ret2;
-	int  ret3;
+	pthread_t thid1, thid2, thid3, thid4;
+	int  ret1, ret2, ret3, ret4;
 	printf("\n\n\n\n0.0\n\n\n\n");
 	int i = pthread_create(&thid1, NULL, readtasks, (void *)100);
 	printf("\n\n\n\n1. %d\n\n\n\n",i);
@@ -57,7 +49,10 @@ int main (int argc, char * argv[])
 	printf("\n\n\n\n2. %d\n\n\n\n",j);
 	int k = pthread_create(&thid3, NULL, dotasks, NULL);
 	printf("\n\n\n\n3. %d\n\n\n\n",k);
+	int l = pthread_create(&thid4, NULL, dotasks, NULL);
+	printf("\n\n\n\n4. %d\n\n\n\n",l);
 	pthread_join(thid1, (void**)&ret1);
 	pthread_join(thid2, (void**)&ret2);
 	pthread_join(thid3, (void**)&ret3);
+	pthread_join(thid4, (void**)&ret4);
 }
